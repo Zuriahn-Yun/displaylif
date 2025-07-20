@@ -100,11 +100,3 @@ def display(file_path,rows,columns):
     
     # Return the Dataframe
     return result
-
-
-def main():
-    # Functions
-    print("Working")
-
-if __name__ == "__main__":
-    main()
