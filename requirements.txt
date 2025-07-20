@@ -1,0 +1,6 @@
+analyze 
+readlif
+plotly 
+PIL
+pandas
+numpy
