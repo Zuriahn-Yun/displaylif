@@ -1,4 +1,3 @@
-from analyze import get_rgb
 from readlif.reader import LifFile
 import numpy as np
 import plotly.express as px
