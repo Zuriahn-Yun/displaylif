@@ -1,0 +1,7 @@
+LICENSE
+README.md
+pyproject.toml
+displaylif_Zuriahn_Yun.egg-info/PKG-INFO
+displaylif_Zuriahn_Yun.egg-info/SOURCES.txt
+displaylif_Zuriahn_Yun.egg-info/dependency_links.txt
+displaylif_Zuriahn_Yun.egg-info/top_level.txt
