@@ -7,7 +7,13 @@ import time
 from plotly.subplots import make_subplots
 import pandas as pd 
 
-def analyze_lif(file_path):
+def display_single(file_path,image_number):
+    """ Displays a single frame when given the frame #
+
+    Args:
+        file_path (string): Local file path
+        image_number (int): the frame that you would like to display
+    """
     try:
         lif_file = LifFile(file_path)
         
@@ -30,73 +36,48 @@ def analyze_lif(file_path):
          
     except Exception as e:
         print('Error: ' + str(e))
-
-def display_lif(file_path,rows,columns):
-    
-    lif = LifFile(file_path)
-    fig = make_subplots(rows,columns)
-    print(lif)
-    curr_row = 1
-    curr_column = 1
-    for image in lif.get_iter_image():
-        print(image)
-        for frame in image.get_iter_t():
-            print(frame)
-            np_image = np.array(frame)
-            curr_px = px.imshow(np_image)
-            trace = curr_px.data[0]
-            fig.add_trace(trace, row=curr_row, col=curr_column)
-            
-            curr_column +=1 
-            if curr_column == columns + 1:
-                curr_row +=1
-                curr_column = 1
-            print(curr_row)
-            print(curr_column)
-            # fig.show()
-            # time.sleep(60)
-            # fig.add_trace(go.Image(z=np_image), row=1, col=2)
-    fig.update_layout(height=512 * rows, width=512 * columns, showlegend=False)
-    fig.show()
             
 def display(file_path,rows,columns):
     """ This displays a lif file in plotly
 
     Args:
-        file_path (_type_): _description_
-        rows (_type_): _description_
-        columns (_type_): _description_
+        file_path (string): filepath to the lif file
+        rows (int: # of rows for the image
+        columns (int): # of columns for the image 
 
     Returns:
         _type_: _description_
     """
-    
-    # add all the images to one list
-    images = []
-    lif = LifFile(file_path)
-    for image in lif.get_iter_image():
-        print(image)
-        for frame in image.get_iter_t():
-            np_image = np.array(frame)
-            images.append(np_image)
-    
-    # Concat every row and add to a list
-    row_dataframes = []
+    try:
+        # add all the images to one list
+        images = []
+        lif = LifFile(file_path)
+        for image in lif.get_iter_image():
+            print(image)
+            for frame in image.get_iter_t():
+                np_image = np.array(frame)
+                images.append(np_image)
+        
+        # Concat every row and add to a list
+        row_dataframes = []
 
-    for i in range(rows):
-        curr = []
-        for k in range(columns):
-            df = pd.DataFrame(images[(i * columns) + k])
-            curr.append(df)
-        curr_row = pd.concat(curr,axis=1,ignore_index=True)
-        row_dataframes.append(curr_row)
-    
-    # Concat all the rows into one very large dataframe
-    result = pd.concat(row_dataframes, axis=0,ignore_index=True)
+        for i in range(rows):
+            curr = []
+            for k in range(columns):
+                df = pd.DataFrame(images[(i * columns) + k])
+                curr.append(df)
+            curr_row = pd.concat(curr,axis=1,ignore_index=True)
+            row_dataframes.append(curr_row)
+        
+        # Concat all the rows into one very large dataframe
+        result = pd.concat(row_dataframes, axis=0,ignore_index=True)
 
-    # Display the final image
-    fig = px.imshow(result)
-    fig.show()   
+        # Display the final image
+        fig = px.imshow(result)
+        fig.show()   
+        
+        # Return the Dataframe
+        return result
     
-    # Return the Dataframe
-    return result
+    except Exception as e:
+        print("Error" + str(e))
