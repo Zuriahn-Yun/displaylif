@@ -16,6 +16,7 @@ Planned changes.
 - [Planned] Improved Documentation.
 - [Planned] Allow for multiple image layering.
 - [Planned] Allow for easy color analysis of LIF files.
+- [Planned] Allow for deletion after analysis and display.
 
 
 ## Most recent update: https://test.pypi.org/project/displaylif/0.0.2/
