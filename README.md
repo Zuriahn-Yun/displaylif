@@ -1,6 +1,6 @@
 # displaylif
 
-This is meant to be used along with 'readlif' which can be found here[readlif](https://pypi.org/project/readlif/)
+This is meant to be used along with 'readlif' which can be found here [readlif](https://pypi.org/project/readlif/)
 
 Currently this has only been tested on LIF files with single images and many frames. If the LIF file does not have metadata the display might not be as accurate.
 
