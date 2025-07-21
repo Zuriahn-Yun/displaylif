@@ -1,0 +1,7 @@
+LICENSE
+README.md
+pyproject.toml
+displaylif.egg-info/PKG-INFO
+displaylif.egg-info/SOURCES.txt
+displaylif.egg-info/dependency_links.txt
+displaylif.egg-info/top_level.txt

@@ -1,6 +1,6 @@
 [project]
-name = "displaylif_Zuriahn-Yun"
-version = "0.0.1"
+name = "displaylif"
+version = "0.0.2"
 authors = [
   { name="Zuriahn Yun", email="yunzuriahn@gmail.com" },
 ]
