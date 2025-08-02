@@ -20,3 +20,6 @@ Planned changes.
 
 
 ## Most recent update: https://test.pypi.org/project/displaylif/0.0.2/
+
+
+This is all wrong and must be re-done.
