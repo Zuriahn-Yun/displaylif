@@ -3,81 +3,80 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from PIL import Image
-import time
 from plotly.subplots import make_subplots
 import pandas as pd 
+from readlif.reader import LifFile
+import numpy as np
+from PIL import Image
+import readlif
+import pandas as pd 
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
-def display_single(file_path,image_number):
-    """ Displays a single frame when given the frame #
 
-    Args:
-        file_path (string): Local file path
-        image_number (int): the frame that you would like to display
-    """
-    try:
-        lif_file = LifFile(file_path)
+
+# Display LIF using Median Projection
+def displaylif(filepath):
+
+    lif = LifFile(filepath)
+
+    image_list = []
+
+    for image_idx, image in enumerate(lif.get_iter_image()):
+        print(f"Processing image {image_idx + 1}/48")
+        print(f"Image Dimensions {image.dims}")
+        z_stack_size = image.dims[2]  # 75 Z-Slices
         
-        """ Display How many Images """
-        image_count = lif_file
-        print(image_count)
+        # Grab each Channel to process
+        channel_max_projections = []
         
-        """ Retrieve a frame from the lif image """
-        lif_image = lif_file.get_image(0)
-        pil_image = lif_image.get_frame(z=0)
-        
-        """ Convert to numpy array """
-        np_image = np.array(pil_image)
-        print(np_image.shape)
-        
-        """ Display Image """
-        fig = px.imshow(np_image)
-        print(fig)
-        fig.show()        
-         
-    except Exception as e:
-        print('Error: ' + str(e))
+        for channel in range(3):  # 3 channels (Red, Green, Blue)
+            # GRab all the Z-Slices
+            z_slices = []
+            for z in range(z_stack_size):
+                frame = image.get_frame(z=z, t=0, c=channel)
+                z_slices.append(np.array(frame))
             
-def display(file_path,rows,columns):
-    """ This displays a lif file in plotly
-
-    Args:
-        file_path (string): filepath to the lif file
-        rows (int: # of rows for the image
-        columns (int): # of columns for the image 
-
-    Returns:
-        _type_: _description_
-    """
-    try:
-        # add all the images to one list
-        images = []
-        lif = LifFile(file_path)
-        for image in lif.get_iter_image():
-            print(image)
-            for frame in image.get_iter_t():
-                np_image = np.array(frame)
-                images.append(np_image)
+            # Stack and take maximum projection for this channel
+            # np.max -> for Maximum Intensity Projection
+            # np.mean -> for Average Intensity Projection
+            # np.sum -> for Sum Projection
+            # np.median -> for median Projection
+            # Could also try PCA
+            z_stack = np.stack(z_slices, axis=0)  # Shape: (75, 512, 512)
+            max_projection = np.median(z_stack, axis=0)  # Shape: (512, 512)
+            channel_max_projections.append(max_projection)
         
-        # Concat every row and add to a list
-        row_dataframes = []
-
-        for i in range(rows):
-            curr = []
-            for k in range(columns):
-                df = pd.DataFrame(images[(i * columns) + k])
-                curr.append(df)
-            curr_row = pd.concat(curr,axis=1,ignore_index=True)
-            row_dataframes.append(curr_row)
+        # Combine 3 channels into RGB
+        rgb_image = np.stack([
+            channel_max_projections[0],  # Red 
+            channel_max_projections[1],  # Green 
+            channel_max_projections[2]   # Blue 
+        ], axis=2)                      # Shape: (512, 512, 3)
         
-        # Concat all the rows into one very large dataframe
-        result = pd.concat(row_dataframes, axis=0,ignore_index=True)
-
-        # Display the final image
-        fig = px.imshow(result)
-        fig.show()   
+        # Normalize and convert to uint8
+        rgb_image = (rgb_image / rgb_image.max() * 255).astype(np.uint8)
         
-        # Return the Dataframe
-        return result
-    
-    except Exception as e:
-        print("Error" + str(e))
+        # Convert to PIL and display
+        composite_image = Image.fromarray(rgb_image)
+        image_list.append(composite_image)
+        
+    np_images = [np.array(img) for img in image_list]
+    total = len(np_images)
+    cols = 6 
+    rows = (total + cols - 1) // cols
+
+    fig = make_subplots(rows=rows, cols=cols, subplot_titles=[f"Image {i+1}" for i in range(total)])
+
+    for idx, img in enumerate(image_list):
+        row = idx // cols + 1
+        col = idx % cols + 1
+
+        # Add image to subplot
+        fig.add_trace(
+            go.Image(z=img),
+            row=row, col=col
+        )
+
+    fig.update_layout(height=512*rows, width=512*cols, title_text="IHC Cohort 2 6-4-25: Using Median Projection")
+    fig.show()
