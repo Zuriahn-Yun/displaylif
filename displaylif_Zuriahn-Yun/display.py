@@ -14,6 +14,10 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 
+# Percentiles 75 = 0.75 percent
+red_percentile = 75
+green_percentile = 30
+blue_percentile = 30
 
 # Display LIF using Median Projection
 def displaylif(filepath):
